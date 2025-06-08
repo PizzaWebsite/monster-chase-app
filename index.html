@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Chase - Pace Keeper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff4757;
+            text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #ddd;
+            font-size: 1.1em;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .speed-control {
+            margin-bottom: 25px;
+        }
+
+        .speed-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #ff6b7a;
+        }
+
+        .speed-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ff4757;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+        .speed-display {
+            text-align: center;
+            font-size: 2em;
+            color: #ff4757;
+            margin: 15px 0;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+        }
+
+        .monster-select {
+            margin-bottom: 20px;
+        }
+
+        .monster-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .monster-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .monster-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .monster-card.selected {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        .monster-emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .monster-name {
+            font-size: 0.9em;
+            color: #ddd;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff4757, #ff3742);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.3);
+            margin-bottom: 25px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+        }
+
+        .start-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .running-display {
+            display: none;
+            text-align: center;
+        }
+
+        .distance-tracker {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .distance-value {
+            font-size: 3em;
+            color: #4cd137;
+            margin-bottom: 5px;
+        }
+
+        .distance-label {
+            color: #ddd;
+            font-size: 1.1em;
+        }
+
+        .monster-status {
+            background: rgba(255, 71, 87, 0.1);
+            border: 2px solid #ff4757;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .monster-distance {
+            font-size: 1.5em;
+            color: #ff4757;
+            margin-bottom: 10px;
+        }
+
+        .danger-level {
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .danger-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4cd137, #ffa502, #ff4757);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .stop-btn {
+            width: 100%;
+            padding: 15px;
+            background: #666;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        .warning-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 0, 0, 0.3);
+            pointer-events: none;
+            opacity: 0;
+            animation: flash 0.5s ease-in-out;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .gps-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .gps-active {
+            color: #4cd137;
+        }
+
+        .gps-inactive {
+            color: #ff4757;
+        }
+    </style>
+</head>
+<body>
+    <div class="gps-status" id="gpsStatus">
+        <span class="gps-inactive">📍 GPS: Searching...</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="title">👹 MONSTER CHASE</h1>
+            <p class="subtitle">Run for your life!</p>
+        </div>
+
+        <div id="setupPanel" class="control-panel">
+            <div class="speed-control">
+                <label class="speed-label">Target Pace (mph)</label>
+                <input type="range" class="speed-slider" id="speedSlider" min="3" max="12" step="0.5" value="5">
+                <div class="speed-display" id="speedDisplay">5.0 mph</div>
+            </div>
+
+            <div class="monster-select">
+                <label class="speed-label">Choose Your Nightmare</label>
+                <div class="monster-grid">
+                    <div class="monster-card selected" data-monster="maniac">
+                        <span class="monster-emoji">🔪</span>
+                        <div class="monster-name">Serial Killer</div>
+                    </div>
+                    <div class="monster-card" data-monster="raptor">
+                        <span class="monster-emoji">🦖</span>
+                        <div class="monster-name">Velociraptor</div>
+                    </div>
+                    <div class="monster-card" data-monster="wolf">
+                        <span class="monster-emoji">🐺</span>
+                        <div class="monster-name">Werewolf</div>
+                    </div>
+                    <div class="monster-card" data-monster="zombie">
+                        <span class="monster-emoji">🧟</span>
+                        <div class="monster-name">Zombie Horde</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="start-btn" id="startBtn">START RUNNING! 🏃‍♂️</button>
+        </div>
+
+        <div id="runningPanel" class="running-display">
+            <div class="distance-tracker">
+                <div class="distance-value" id="distanceValue">0.00</div>
+                <div class="distance-label">miles traveled</div>
+            </div>
+
+            <div class="monster-status">
+                <div class="monster-distance" id="monsterDistance">Monster is 50 feet behind!</div>
+                <div class="danger-level">
+                    <div class="danger-fill" id="dangerFill" style="width: 20%;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 10px; color: #ddd;">
+                    DANGER LEVEL
+                </div>
+            </div>
+
+            <button class="stop-btn" id="stopBtn">STOP SESSION</button>
+        </div>
+    </div>
+
+    <div id="warningFlash" class="warning-flash"></div>
+
+    <script>
+        let isRunning = false;
+        let watchId = null;
+        let startTime = null;
+        let totalDistance = 0;
+        let lastPosition = null;
+        let targetSpeed = 5.0;
+        let currentSpeed = 0;
+        let monsterDistance = 50; // feet behind
+        let selectedMonster = 'maniac';
+        let audioContext = null;
+        let oscillator = null;
+
+        const speedSlider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const setupPanel = document.getElementById('setupPanel');
+        const runningPanel = document.getElementById('runningPanel');
+        const distanceValue = document.getElementById('distanceValue');
+        const monsterDistanceEl = document.getElementById('monsterDistance');
+        const dangerFill = document.getElementById('dangerFill');
+        const gpsStatus = document.getElementById('gpsStatus');
+        const warningFlash = document.getElementById('warningFlash');
+
+        // Speed slider control
+        speedSlider.addEventListener('input', (e) => {
+            targetSpeed = parseFloat(e.target.value);
+            speedDisplay.textContent = targetSpeed.toFixed(1) + ' mph';
+        });
+
+        // Monster selection
+        document.querySelectorAll('.monster-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.monster-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedMonster = card.dataset.monster;
+            });
+        });
+
+        // Initialize audio context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Play warning sound when monster gets close
+        function playWarningSound(intensity) {
+            if (!audioContext) return;
+            
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+
+            oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.frequency.setValueAtTime(200 + (intensity * 300), audioContext.currentTime);
+            oscillator.type = 'sawtooth';
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(intensity * 0.3, audioContext.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Calculate distance between two GPS coordinates
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 3959; // Earth's radius in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Update monster position based on current speed
+        function updateMonsterPosition(currentSpeedMPH) {
+            const speedDifference = targetSpeed - currentSpeedMPH;
+            
+            if (speedDifference > 0) {
+                // Runner is slower than target, monster catches up
+                monsterDistance -= speedDifference * 2;
+            } else {
+                // Runner is faster, monster falls behind
+                monsterDistance += Math.abs(speedDifference) * 1.5;
+            }
+
+            // Keep monster distance reasonable
+            monsterDistance = Math.max(5, Math.min(200, monsterDistance));
+            
+            // Update display
+            const distanceFeet = Math.round(monsterDistance);
+            monsterDistanceEl.textContent = `Monster is ${distanceFeet} feet behind!`;
+            
+            // Calculate danger level (closer = more dangerous)
+            const dangerLevel = Math.max(0, Math.min(100, (200 - monsterDistance) / 200 * 100));
+            dangerFill.style.width = dangerLevel + '%';
+            
+            // Warning effects when monster gets close
+            if (monsterDistance < 30) {
+                warningFlash.style.animation = 'flash 0.5s ease-in-out';
+                playWarningSound(dangerLevel / 100);
+                setTimeout(() => {
+                    warningFlash.style.animation = '';
+                }, 500);
+            }
+        }
+
+        // GPS tracking
+        function startGPSTracking() {
+            if (!navigator.geolocation) {
+                alert('GPS not supported on this device!');
+                return false;
+            }
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    gpsStatus.innerHTML = '<span class="gps-active">📍 GPS: Active</span>';
+                    
+                    if (lastPosition && isRunning) {
+                        const distance = calculateDistance(
+                            lastPosition.coords.latitude,
+                            lastPosition.coords.longitude,
+                            position.coords.latitude,
+                            position.coords.longitude
+                        );
+                        
+                        totalDistance += distance;
+                        distanceValue.textContent = totalDistance.toFixed(2);
+                        
+                        // Calculate current speed
+                        const timeDiff = (position.timestamp - lastPosition.timestamp) / 1000 / 3600; // hours
+                        if (timeDiff > 0) {
+                            currentSpeed = distance / timeDiff;
+                            updateMonsterPosition(currentSpeed);
+                        }
+                    }
+                    
+                    lastPosition = position;
+                },
+                (error) => {
+                    gpsStatus.innerHTML = '<span class="gps-inactive">📍 GPS: Error</span>';
+                    console.error('GPS Error:', error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 1000
+                }
+            );
+            
+            return true;
+        }
+
+        // Start running session
+        startBtn.addEventListener('click', () => {
+            initAudio();
+            
+            if (startGPSTracking()) {
+                isRunning = true;
+                startTime = Date.now();
+                totalDistance = 0;
+                monsterDistance = 50;
+                
+                setupPanel.style.display = 'none';
+                runningPanel.style.display = 'block';
+                
+                // Simulate monster position updates every 2 seconds
+                setInterval(() => {
+                    if (isRunning) {
+                        updateMonsterPosition(currentSpeed);
+                    }
+                }, 2000);
+            }
+        });
+
+        // Stop running session
+        stopBtn.addEventListener('click', () => {
+            isRunning = false;
+            
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+            
+            setupPanel.style.display = 'block';
+            runningPanel.style.display = 'none';
+            gpsStatus.innerHTML = '<span class="gps-inactive">📍 GPS: Inactive</span>';
+        });
+
+        // Request GPS permission on load
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                () => gpsStatus.innerHTML = '<span class="gps-active">📍 GPS: Ready</span>',
+                () => gpsStatus.innerHTML = '<span class="gps-inactive">📍 GPS: Permission needed</span>'
+            );
+        }
+    </script>
+</body>
+</html>
