@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monster Chase - Pace Keeper</title>
+    <meta name="description" content="Run for your life! GPS-powered pace keeper with monster chase gameplay">
+    <meta name="theme-color" content="#ff4757">
+    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Monster Chase&quot;,&quot;short_name&quot;:&quot;MonsterChase&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#1a1a2e&quot;,&quot;theme_color&quot;:&quot;#ff4757&quot;}">
     <style>
         * {
             margin: 0;
@@ -12,8 +15,8 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0d0d0d, #1a0a0a, #2d1b1b);
             color: #fff;
             min-height: 100vh;
             overflow-x: hidden;
@@ -29,140 +32,149 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            animation: pulse 2s infinite;
+            animation: flicker 3s infinite;
         }
 
-        @keyframes pulse {
+        @keyframes flicker {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            2% { opacity: 0.8; }
+            4% { opacity: 1; }
+            8% { opacity: 0.9; }
+            10% { opacity: 1; }
+            96% { opacity: 0.95; }
         }
 
         .title {
-            font-size: 2.5em;
+            font-size: 2.2em;
             font-weight: bold;
-            color: #ff4757;
-            text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
-            margin-bottom: 10px;
+            color: #cc0000;
+            text-shadow: 0 0 20px #cc0000, 0 0 40px #990000;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
         }
 
         .subtitle {
-            color: #ddd;
-            font-size: 1.1em;
+            color: #888;
+            font-size: 1em;
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
 
         .control-panel {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, rgba(20,20,20,0.9), rgba(40,20,20,0.9));
             backdrop-filter: blur(10px);
-            border-radius: 20px;
+            border-radius: 15px;
             padding: 25px;
             margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .speed-control {
-            margin-bottom: 25px;
-        }
-
-        .speed-label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-            color: #ff6b7a;
-        }
-
-        .speed-slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #333;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .speed-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #ff4757;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
-        }
-
-        .speed-display {
-            text-align: center;
-            font-size: 2em;
-            color: #ff4757;
-            margin: 15px 0;
-            text-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+            border: 2px solid #330000;
+            box-shadow: 0 0 30px rgba(204,0,0,0.1);
         }
 
         .monster-select {
             margin-bottom: 20px;
         }
 
+        .monster-label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #cc0000;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
         .monster-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 12px;
         }
 
         .monster-card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid transparent;
-            border-radius: 15px;
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border: 2px solid #333;
+            border-radius: 12px;
             padding: 15px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .monster-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(204,0,0,0.3);
+            border-color: #cc0000;
         }
 
         .monster-card.selected {
-            border-color: #ff4757;
-            background: rgba(255, 71, 87, 0.1);
+            border-color: #cc0000;
+            background: linear-gradient(145deg, #2d1010, #1a0505);
+            box-shadow: 0 0 20px rgba(204,0,0,0.4);
+        }
+
+        .monster-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #111;
         }
 
         .monster-emoji {
             font-size: 2.5em;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: block;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
         }
 
         .monster-name {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #ddd;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .monster-speed {
+            font-size: 0.7em;
+            color: #888;
+            font-style: italic;
+        }
+
+        .monster-description {
+            font-size: 0.6em;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.2;
         }
 
         .start-btn {
             width: 100%;
             padding: 20px;
-            background: linear-gradient(45deg, #ff4757, #ff3742);
-            border: none;
-            border-radius: 50px;
+            background: linear-gradient(45deg, #cc0000, #990000);
+            border: 2px solid #660000;
+            border-radius: 25px;
             color: white;
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.3);
+            box-shadow: 0 5px 20px rgba(204,0,0,0.3);
             margin-bottom: 25px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
         }
 
         .start-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+            box-shadow: 0 8px 30px rgba(204,0,0,0.5);
+            background: linear-gradient(45deg, #dd0000, #aa0000);
         }
 
         .start-btn:disabled {
-            background: #666;
+            background: #333;
             cursor: not-allowed;
             transform: none;
+            border-color: #555;
         }
 
         .running-display {
@@ -171,61 +183,184 @@
         }
 
         .distance-tracker {
-            background: rgba(0, 0, 0, 0.5);
+            background: linear-gradient(145deg, rgba(0,0,0,0.8), rgba(20,0,0,0.8));
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
+            border: 1px solid #330000;
         }
 
         .distance-value {
-            font-size: 3em;
-            color: #4cd137;
+            font-size: 2.5em;
+            color: #00cc00;
             margin-bottom: 5px;
+            text-shadow: 0 0 15px #00cc00;
         }
 
         .distance-label {
-            color: #ddd;
-            font-size: 1.1em;
+            color: #aaa;
+            font-size: 1em;
         }
 
         .monster-status {
-            background: rgba(255, 71, 87, 0.1);
-            border: 2px solid #ff4757;
+            background: linear-gradient(145deg, rgba(40,0,0,0.9), rgba(60,10,10,0.9));
+            border: 2px solid #cc0000;
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monster-status.danger {
+            animation: pulse-danger 1s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { 
+                background: linear-gradient(145deg, rgba(40,0,0,0.9), rgba(60,10,10,0.9));
+                border-color: #cc0000;
+            }
+            50% { 
+                background: linear-gradient(145deg, rgba(80,0,0,0.9), rgba(100,20,20,0.9));
+                border-color: #ff0000;
+            }
+        }
+
+        .current-monster {
+            font-size: 3em;
+            margin-bottom: 10px;
+            animation: monster-breathe 2s infinite;
+        }
+
+        @keyframes monster-breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .monster-distance {
-            font-size: 1.5em;
-            color: #ff4757;
+            font-size: 1.3em;
+            color: #ff4444;
             margin-bottom: 10px;
+            font-weight: bold;
         }
 
         .danger-level {
-            height: 20px;
-            background: #333;
-            border-radius: 10px;
+            height: 25px;
+            background: #111;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
+            border: 1px solid #333;
         }
 
         .danger-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4cd137, #ffa502, #ff4757);
-            border-radius: 10px;
+            background: linear-gradient(90deg, #00cc00, #cccc00, #cc6600, #cc0000, #990000);
+            border-radius: 12px;
             transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .danger-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .stop-btn {
             width: 100%;
             padding: 15px;
-            background: #666;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 25px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stop-btn:hover {
+            background: #444;
+        }
+
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #000000, #330000, #000000);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: screen-takeover 0.5s ease-out;
+        }
+
+        @keyframes screen-takeover {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .game-over-content {
+            text-align: center;
+            color: #ff0000;
+            animation: text-glitch 0.1s infinite;
+        }
+
+        @keyframes text-glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        .game-over-monster {
+            font-size: 8em;
+            margin-bottom: 20px;
+            animation: monster-attack 0.5s ease-out;
+        }
+
+        @keyframes monster-attack {
+            0% { transform: scale(0.5) rotate(-10deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .game-over-text {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #ff0000;
+        }
+
+        .game-over-message {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #ccc;
+        }
+
+        .continue-btn {
+            padding: 15px 30px;
+            background: #cc0000;
             border: none;
             border-radius: 25px;
             color: white;
             font-size: 1.1em;
             cursor: pointer;
+            font-family: 'Courier New', monospace;
         }
 
         .warning-flash {
@@ -234,10 +369,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 0, 0, 0.3);
+            background: rgba(255, 0, 0, 0.5);
             pointer-events: none;
             opacity: 0;
-            animation: flash 0.5s ease-in-out;
+            animation: flash 0.3s ease-in-out;
         }
 
         @keyframes flash {
@@ -249,18 +384,31 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            border: 1px solid #333;
         }
 
         .gps-active {
-            color: #4cd137;
+            color: #00cc00;
         }
 
         .gps-inactive {
-            color: #ff4757;
+            color: #cc0000;
+        }
+
+        .speed-display {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            border: 1px solid #333;
+            color: #00cc00;
         }
     </style>
 </head>
@@ -268,97 +416,187 @@
     <div class="gps-status" id="gpsStatus">
         <span class="gps-inactive">📍 GPS: Searching...</span>
     </div>
+    
+    <div class="speed-display" id="speedDisplay" style="display: none;">
+        <span id="currentSpeed">0.0 mph</span>
+    </div>
 
     <div class="container">
         <div class="header">
-            <h1 class="title">👹 MONSTER CHASE</h1>
-            <p class="subtitle">Run for your life!</p>
+            <h1 class="title">MONSTER CHASE</h1>
+            <p class="subtitle">"The Long Walk" - Keep Your Pace or Die</p>
         </div>
 
         <div id="setupPanel" class="control-panel">
-            <div class="speed-control">
-                <label class="speed-label">Target Pace (mph)</label>
-                <input type="range" class="speed-slider" id="speedSlider" min="3" max="12" step="0.5" value="5">
-                <div class="speed-display" id="speedDisplay">5.0 mph</div>
-            </div>
-
             <div class="monster-select">
-                <label class="speed-label">Choose Your Nightmare</label>
+                <label class="monster-label">CHOOSE YOUR HUNTER</label>
                 <div class="monster-grid">
-                    <div class="monster-card selected" data-monster="maniac">
+                    <div class="monster-card" data-monster="steve" data-speed="4.0">
+                        <span class="monster-emoji">🤓</span>
+                        <div class="monster-name">STEVE</div>
+                        <div class="monster-speed">4.0 mph</div>
+                        <div class="monster-description">"Keep up the pace, walker..."</div>
+                    </div>
+                    <div class="monster-card" data-monster="slasher" data-speed="5.0">
                         <span class="monster-emoji">🔪</span>
-                        <div class="monster-name">Serial Killer</div>
+                        <div class="monster-name">THE SLASHER</div>
+                        <div class="monster-speed">5.0 mph</div>
+                        <div class="monster-description">Knife scraping on pavement</div>
                     </div>
-                    <div class="monster-card" data-monster="raptor">
+                    <div class="monster-card" data-monster="raptor" data-speed="7.0">
                         <span class="monster-emoji">🦖</span>
-                        <div class="monster-name">Velociraptor</div>
+                        <div class="monster-name">VELOCIRAPTOR</div>
+                        <div class="monster-speed">7.0 mph</div>
+                        <div class="monster-description">Clever girl... very clever</div>
                     </div>
-                    <div class="monster-card" data-monster="wolf">
-                        <span class="monster-emoji">🐺</span>
-                        <div class="monster-name">Werewolf</div>
-                    </div>
-                    <div class="monster-card" data-monster="zombie">
-                        <span class="monster-emoji">🧟</span>
-                        <div class="monster-name">Zombie Horde</div>
+                    <div class="monster-card" data-monster="demon" data-speed="9.0">
+                        <span class="monster-emoji">👹</span>
+                        <div class="monster-name">SHADOW DEMON</div>
+                        <div class="monster-speed">9.0 mph</div>
+                        <div class="monster-description">From the depths of hell</div>
                     </div>
                 </div>
             </div>
 
-            <button class="start-btn" id="startBtn">START RUNNING! 🏃‍♂️</button>
+            <button class="start-btn" id="startBtn">BEGIN THE HUNT</button>
         </div>
 
         <div id="runningPanel" class="running-display">
             <div class="distance-tracker">
                 <div class="distance-value" id="distanceValue">0.00</div>
-                <div class="distance-label">miles traveled</div>
+                <div class="distance-label">miles survived</div>
             </div>
 
-            <div class="monster-status">
-                <div class="monster-distance" id="monsterDistance">Monster is 50 feet behind!</div>
+            <div class="monster-status" id="monsterStatus">
+                <div class="current-monster" id="currentMonsterEmoji">🤓</div>
+                <div class="monster-distance" id="monsterDistance">Steve is 50 feet behind...</div>
                 <div class="danger-level">
                     <div class="danger-fill" id="dangerFill" style="width: 20%;"></div>
                 </div>
-                <div style="text-align: center; margin-top: 10px; color: #ddd;">
-                    DANGER LEVEL
+                <div style="text-align: center; margin-top: 10px; color: #888; font-size: 0.9em;">
+                    THREAT LEVEL
                 </div>
             </div>
 
-            <button class="stop-btn" id="stopBtn">STOP SESSION</button>
+            <button class="stop-btn" id="stopBtn">END SESSION</button>
+        </div>
+    </div>
+
+    <div id="gameOverScreen" class="game-over-screen">
+        <div class="game-over-content">
+            <div class="game-over-monster" id="gameOverMonster">🤓</div>
+            <div class="game-over-text">CAUGHT!</div>
+            <div class="game-over-message" id="gameOverMessage">Steve caught up to you!</div>
+            <button class="continue-btn" id="continueBtn">TRY AGAIN</button>
         </div>
     </div>
 
     <div id="warningFlash" class="warning-flash"></div>
 
     <script>
+        // Monster configurations
+        const monsters = {
+            steve: {
+                name: "Steve",
+                emoji: "🤓",
+                speed: 4.0,
+                sounds: {
+                    approach: [200, 180, 160], // Gentle beeping
+                    warning: [300, 280, 260, 240], // Faster beeping
+                    caught: [150, 100, 150, 100, 150] // Game show buzzer
+                },
+                messages: [
+                    "Steve is catching up...",
+                    "Keep the pace, walker...",
+                    "Steve's getting closer...",
+                    "You're falling behind..."
+                ],
+                caughtMessage: "Steve caught you! You've been eliminated from The Long Walk."
+            },
+            slasher: {
+                name: "The Slasher",
+                emoji: "🔪",
+                speed: 5.0,
+                sounds: {
+                    approach: [100, 120, 140], // Low menacing tones
+                    warning: [80, 100, 120, 140, 160], // Increasing dread
+                    caught: [50, 60, 70, 60, 50, 40] // Death sound
+                },
+                messages: [
+                    "Footsteps echo behind you...",
+                    "The blade scrapes concrete...",
+                    "He's getting closer...",
+                    "You can hear his breathing..."
+                ],
+                caughtMessage: "The Slasher caught you! Game over."
+            },
+            raptor: {
+                name: "Velociraptor",
+                emoji: "🦖",
+                speed: 7.0,
+                sounds: {
+                    approach: [400, 380, 360], // High pitched screeches
+                    warning: [450, 400, 350, 300, 250], // Raptor calls
+                    caught: [500, 400, 300, 200, 100] // Attack screech
+                },
+                messages: [
+                    "Claws click on pavement...",
+                    "The pack is hunting you...",
+                    "Clever girl is gaining...",
+                    "You hear the pack calling..."
+                ],
+                caughtMessage: "The Velociraptor pack caught you! Clever girls..."
+            },
+            demon: {
+                name: "Shadow Demon",
+                emoji: "👹",
+                speed: 9.0,
+                sounds: {
+                    approach: [80, 90, 100], // Deep demonic tones
+                    warning: [60, 80, 100, 120, 140], // Building terror
+                    caught: [40, 50, 60, 70, 80, 90, 100] // Demonic roar
+                },
+                messages: [
+                    "Darkness creeps closer...",
+                    "The shadows are moving...",
+                    "Hell follows behind you...",
+                    "Your soul is in danger..."
+                ],
+                caughtMessage: "The Shadow Demon has claimed your soul!"
+            }
+        };
+
         let isRunning = false;
         let watchId = null;
         let startTime = null;
         let totalDistance = 0;
         let lastPosition = null;
-        let targetSpeed = 5.0;
         let currentSpeed = 0;
-        let monsterDistance = 50; // feet behind
-        let selectedMonster = 'maniac';
+        let monsterDistance = 50;
+        let selectedMonster = 'steve';
+        let currentMonsterData = monsters.steve;
         let audioContext = null;
-        let oscillator = null;
+        let messageIndex = 0;
+        let caughtTimeout = null;
 
-        const speedSlider = document.getElementById('speedSlider');
-        const speedDisplay = document.getElementById('speedDisplay');
+        // DOM elements
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const setupPanel = document.getElementById('setupPanel');
         const runningPanel = document.getElementById('runningPanel');
         const distanceValue = document.getElementById('distanceValue');
-        const monsterDistanceEl = document.getElementById('monsterDistance');
+        const monsterDistance_el = document.getElementById('monsterDistance');
         const dangerFill = document.getElementById('dangerFill');
         const gpsStatus = document.getElementById('gpsStatus');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const currentSpeedEl = document.getElementById('currentSpeed');
         const warningFlash = document.getElementById('warningFlash');
-
-        // Speed slider control
-        speedSlider.addEventListener('input', (e) => {
-            targetSpeed = parseFloat(e.target.value);
-            speedDisplay.textContent = targetSpeed.toFixed(1) + ' mph';
-        });
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const gameOverMonster = document.getElementById('gameOverMonster');
+        const gameOverMessage = document.getElementById('gameOverMessage');
+        const continueBtn = document.getElementById('continueBtn');
+        const monsterStatus = document.getElementById('monsterStatus');
+        const currentMonsterEmoji = document.getElementById('currentMonsterEmoji');
 
         // Monster selection
         document.querySelectorAll('.monster-card').forEach(card => {
@@ -366,8 +604,12 @@
                 document.querySelectorAll('.monster-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
                 selectedMonster = card.dataset.monster;
+                currentMonsterData = monsters[selectedMonster];
             });
         });
+
+        // Initialize first monster as selected
+        document.querySelector('[data-monster="steve"]').classList.add('selected');
 
         // Initialize audio context
         function initAudio() {
@@ -376,35 +618,44 @@
             }
         }
 
-        // Play warning sound when monster gets close
-        function playWarningSound(intensity) {
-            if (!audioContext) return;
+        // Play monster-specific sounds
+        function playMonsterSound(type, intensity = 0.5) {
+            if (!audioContext || !currentMonsterData.sounds[type]) return;
             
-            if (oscillator) {
-                oscillator.stop();
-                oscillator = null;
-            }
+            const frequencies = currentMonsterData.sounds[type];
+            frequencies.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                    oscillator.type = selectedMonster === 'steve' ? 'sine' : 
+                                    selectedMonster === 'slasher' ? 'sawtooth' :
+                                    selectedMonster === 'raptor' ? 'square' : 'triangle';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.rampToValueAtTime(intensity * 0.3, audioContext.currentTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                }, index * 150);
+            });
+        }
 
-            oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.frequency.setValueAtTime(200 + (intensity * 300), audioContext.currentTime);
-            oscillator.type = 'sawtooth';
-            
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(intensity * 0.3, audioContext.currentTime + 0.1);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.5);
+        // Vibrate device (mobile)
+        function vibrate(pattern) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
         }
 
         // Calculate distance between two GPS coordinates
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 3959; // Earth's radius in miles
+            const R = 3959;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -414,43 +665,86 @@
             return R * c;
         }
 
-        // Update monster position based on current speed
+        // Update monster position
         function updateMonsterPosition(currentSpeedMPH) {
+            const targetSpeed = currentMonsterData.speed;
             const speedDifference = targetSpeed - currentSpeedMPH;
             
             if (speedDifference > 0) {
-                // Runner is slower than target, monster catches up
-                monsterDistance -= speedDifference * 2;
+                monsterDistance -= speedDifference * 1.5;
             } else {
-                // Runner is faster, monster falls behind
-                monsterDistance += Math.abs(speedDifference) * 1.5;
+                monsterDistance += Math.abs(speedDifference) * 1.2;
             }
 
-            // Keep monster distance reasonable
-            monsterDistance = Math.max(5, Math.min(200, monsterDistance));
+            monsterDistance = Math.max(2, Math.min(200, monsterDistance));
             
-            // Update display
-            const distanceFeet = Math.round(monsterDistance);
-            monsterDistanceEl.textContent = `Monster is ${distanceFeet} feet behind!`;
+            // Update message
+            const messages = currentMonsterData.messages;
+            const message = messages[messageIndex % messages.length];
+            monsterDistance_el.textContent = `${Math.round(monsterDistance)} ft: ${message}`;
+            messageIndex++;
             
-            // Calculate danger level (closer = more dangerous)
+            // Calculate danger level
             const dangerLevel = Math.max(0, Math.min(100, (200 - monsterDistance) / 200 * 100));
             dangerFill.style.width = dangerLevel + '%';
             
-            // Warning effects when monster gets close
-            if (monsterDistance < 30) {
-                warningFlash.style.animation = 'flash 0.5s ease-in-out';
-                playWarningSound(dangerLevel / 100);
+            // Visual and audio warnings
+            if (monsterDistance < 40) {
+                monsterStatus.classList.add('danger');
+                warningFlash.style.animation = 'flash 0.3s ease-in-out';
+                playMonsterSound('warning', dangerLevel / 100);
+                vibrate([200, 100, 200]);
+                
                 setTimeout(() => {
                     warningFlash.style.animation = '';
-                }, 500);
+                    monsterStatus.classList.remove('danger');
+                }, 300);
+            } else if (monsterDistance < 80) {
+                playMonsterSound('approach', 0.3);
+            }
+            
+            // Check if caught
+            if (monsterDistance <= 5) {
+                gameOver();
             }
         }
+
+        // Game over sequence
+        function gameOver() {
+            isRunning = false;
+            
+            // Stop GPS tracking
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            // Show game over screen
+            gameOverMonster.textContent = currentMonsterData.emoji;
+            gameOverMessage.textContent = currentMonsterData.caughtMessage;
+            gameOverScreen.style.display = 'flex';
+            
+            // Play caught sound and intense vibration
+            playMonsterSound('caught', 1.0);
+            vibrate([500, 200, 500, 200, 1000]);
+            
+            // Hide running panel
+            runningPanel.style.display = 'none';
+        }
+
+        // Continue after game over
+        continueBtn.addEventListener('click', () => {
+            gameOverScreen.style.display = 'none';
+            setupPanel.style.display = 'block';
+            totalDistance = 0;
+            monsterDistance = 50;
+            messageIndex = 0;
+        });
 
         // GPS tracking
         function startGPSTracking() {
             if (!navigator.geolocation) {
-                alert('GPS not supported on this device!');
+                alert('GPS not supported!');
                 return false;
             }
 
@@ -469,10 +763,10 @@
                         totalDistance += distance;
                         distanceValue.textContent = totalDistance.toFixed(2);
                         
-                        // Calculate current speed
-                        const timeDiff = (position.timestamp - lastPosition.timestamp) / 1000 / 3600; // hours
+                        const timeDiff = (position.timestamp - lastPosition.timestamp) / 1000 / 3600;
                         if (timeDiff > 0) {
                             currentSpeed = distance / timeDiff;
+                            currentSpeedEl.textContent = currentSpeed.toFixed(1) + ' mph';
                             updateMonsterPosition(currentSpeed);
                         }
                     }
@@ -480,67 +774,3 @@
                     lastPosition = position;
                 },
                 (error) => {
-                    gpsStatus.innerHTML = '<span class="gps-inactive">📍 GPS: Error</span>';
-                    console.error('GPS Error:', error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 1000
-                }
-            );
-            
-            return true;
-        }
-
-        // Start running session
-        startBtn.addEventListener('click', () => {
-            initAudio();
-            
-            if (startGPSTracking()) {
-                isRunning = true;
-                startTime = Date.now();
-                totalDistance = 0;
-                monsterDistance = 50;
-                
-                setupPanel.style.display = 'none';
-                runningPanel.style.display = 'block';
-                
-                // Simulate monster position updates every 2 seconds
-                setInterval(() => {
-                    if (isRunning) {
-                        updateMonsterPosition(currentSpeed);
-                    }
-                }, 2000);
-            }
-        });
-
-        // Stop running session
-        stopBtn.addEventListener('click', () => {
-            isRunning = false;
-            
-            if (watchId) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null;
-            }
-            
-            if (oscillator) {
-                oscillator.stop();
-                oscillator = null;
-            }
-            
-            setupPanel.style.display = 'block';
-            runningPanel.style.display = 'none';
-            gpsStatus.innerHTML = '<span class="gps-inactive">📍 GPS: Inactive</span>';
-        });
-
-        // Request GPS permission on load
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                () => gpsStatus.innerHTML = '<span class="gps-active">📍 GPS: Ready</span>',
-                () => gpsStatus.innerHTML = '<span class="gps-inactive">📍 GPS: Permission needed</span>'
-            );
-        }
-    </script>
-</body>
-</html>
